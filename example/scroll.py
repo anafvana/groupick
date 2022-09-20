@@ -1,6 +1,7 @@
-from pick import pick
+from multipick import multipick
 
-title = "Select:"
+title = "Assign languages to groups 'a', 'b' or '1'."
 options = ["foo.bar%s.baz" % x for x in range(1, 71)]
-option, index = pick(options, title)
-print(option, index)
+groups:set = {"a", "b", 1}
+selected = multipick(options, groups, title)
+print(selected)

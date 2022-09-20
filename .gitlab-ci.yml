@@ -1,0 +1,23 @@
+# FOR ACTIVE DEV PERIODS ONLY
+# For GitLab mirror, delete released package and release a new one
+
+# image: python:latest
+
+# run:
+#   variables:
+#     PKGID: 'curl --header "PRIVATE-TOKEN: ${PRIVATE_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages" | jq ".[].id"'
+#   script:
+#     - pip install poetry twine
+#     - poetry build
+#     - >
+#       wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 &&
+#       mv jq-linux64 /usr/local/bin/jq &&
+#       chmod +x /usr/local/bin/jq
+#     - >
+#       if [[ $(eval $PKGID) =~ [0-9]+ ]];
+#       then
+#         curl --request DELETE --header "PRIVATE-TOKEN: ${PRIVATE_TOKEN}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/$(eval $PKGID)";
+#       else
+#         echo "No package";
+#       fi
+#     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --verbose --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*

@@ -1,16 +1,16 @@
 [tool.poetry]
-name = "pick"
-version = "2.0.2"
-description = "Pick an option in the terminal with a simple GUI"
-authors = ["wong2 <wonderfuly@gmail.com>"]
+name = "multipick"
+version = "1.0.0"
+description = "Assign options to groups in the terminal with a simple GUI. Based on wong2's pick"
+authors = ["Ana <anafvana@gmail.com>", "wong2 <wonderfuly@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/wong2/pick"
-homepage = "https://github.com/wong2/pick"
-keywords = ["terminal", "gui"]
+repository = "https://github.com/anafvana/multipick/"
+homepage = "https://github.com/anafvana/multipick/"
+keywords = ["terminal", "gui","pick", "group", "assign"]
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.10"
 windows-curses = {version = "^2.2.0", platform = "win32"}
 
 [tool.poetry.dev-dependencies]

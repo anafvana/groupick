@@ -1,8 +1,10 @@
 import curses
+import functools
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, Sequence, Tuple, TypeVar, Union, Generic
+from typing import (Any, Dict, Generic, List, Optional, Sequence, Set, Tuple,
+                    TypeVar, Union)
 
-__all__ = ["Picker", "pick", "Option"]
+__all__ = ["Picker", "multipick", "Option"]
 
 
 @dataclass
@@ -11,13 +13,7 @@ class Option:
     value: Any
 
 
-KEYS_ENTER = (curses.KEY_ENTER, ord("\n"), ord("\r"))
-KEYS_UP = (curses.KEY_UP, ord("k"))
-KEYS_DOWN = (curses.KEY_DOWN, ord("j"))
-KEYS_SELECT = (curses.KEY_RIGHT, ord(" "))
-
-SYMBOL_CIRCLE_FILLED = "(x)"
-SYMBOL_CIRCLE_EMPTY = "( )"
+# Key consts moved to within run_loop
 
 OPTION_T = TypeVar("OPTION_T", str, Option)
 PICK_RETURN_T = Tuple[OPTION_T, int]
@@ -26,12 +22,12 @@ PICK_RETURN_T = Tuple[OPTION_T, int]
 @dataclass
 class Picker(Generic[OPTION_T]):
     options: Sequence[OPTION_T]
-    title: Optional[str] = None
+    groups: Set[int|str]
+    instructions: Optional[str] = None
     indicator: str = "*"
     default_index: int = 0
-    multiselect: bool = False
-    min_selection_count: int = 0
-    selected_indexes: List[int] = field(init=False, default_factory=list)
+    handle_all: bool = False
+    selected_indexes: Dict[str,List[int]] = field(init=False, default_factory=dict)
     index: int = field(init=False, default=0)
     scroll_top: int = field(init=False, default=0)
 
@@ -42,10 +38,11 @@ class Picker(Generic[OPTION_T]):
         if self.default_index >= len(self.options):
             raise ValueError("default_index should be less than the length of options")
 
-        if self.multiselect and self.min_selection_count > len(self.options):
-            raise ValueError(
-                "min_selection_count is bigger than the available options, you will not be able to make any selection"
-            )
+        for g in self.groups:
+            g = str(g)
+            if len(g) != 1:
+                raise ValueError("groups must be exactly one character each")
+            self.selected_indexes[g] = []
 
         self.index = self.default_index
 
@@ -59,28 +56,39 @@ class Picker(Generic[OPTION_T]):
         if self.index >= len(self.options):
             self.index = 0
 
-    def mark_index(self) -> None:
-        if self.multiselect:
-            if self.index in self.selected_indexes:
-                self.selected_indexes.remove(self.index)
+    def mark_index(self,keypress) -> None:
+        grp = self.selected_indexes.get(chr(keypress))
+        
+        if grp is not None:
+            if self.index in grp:
+                grp.remove(self.index)
             else:
-                self.selected_indexes.append(self.index)
+                for k in self.selected_indexes.keys():
+                    try:
+                        kgrp = self.selected_indexes.get(k)
+                        if kgrp is not None:
+                            kgrp.remove(self.index)
+                    except:
+                        pass
+                grp.append(self.index)
 
-    def get_selected(self) -> Union[List[PICK_RETURN_T], PICK_RETURN_T]:
+    def get_selected(self) -> Dict[str, Union[List[PICK_RETURN_T], PICK_RETURN_T]]:
         """return the current selected option as a tuple: (option, index)
         or as a list of tuples (in case multiselect==True)
         """
-        if self.multiselect:
-            return_tuples = []
-            for selected in self.selected_indexes:
-                return_tuples.append((self.options[selected], selected))
-            return return_tuples
-        else:
-            return self.options[self.index], self.index
+
+        return_tuples:dict = {}
+        for k in self.selected_indexes.keys():
+            return_tuples[k] = []
+            grp = self.selected_indexes.get(k)
+            if grp is not None:
+                for selected in grp:
+                    return_tuples[k].append((self.options[selected], selected))
+        return return_tuples
 
     def get_title_lines(self) -> List[str]:
-        if self.title:
-            return self.title.split("\n") + [""]
+        if self.instructions:
+            return self.instructions.split("\n") + [""]
         return []
 
     def get_option_lines(self) -> List[str]:
@@ -91,13 +99,13 @@ class Picker(Generic[OPTION_T]):
             else:
                 prefix = len(self.indicator) * " "
 
-            if self.multiselect:
-                symbol = (
-                    SYMBOL_CIRCLE_FILLED
-                    if index in self.selected_indexes
-                    else SYMBOL_CIRCLE_EMPTY
-                )
-                prefix = f"{prefix} {symbol}"
+            for k in self.selected_indexes.keys():
+                if index in self.selected_indexes[k]:
+                    symbol = f"[{k}]"
+                    break
+                else:
+                    symbol = "[ ]"
+            prefix = f"{prefix} {symbol} "
 
             option_as_str = option.label if isinstance(option, Option) else option
             lines.append(f"{prefix} {option_as_str}")
@@ -135,7 +143,13 @@ class Picker(Generic[OPTION_T]):
 
         screen.refresh()
 
-    def run_loop(self, screen) -> Union[List[PICK_RETURN_T], PICK_RETURN_T]:
+    def run_loop(self, screen) -> Optional[Dict[str, Union[List[PICK_RETURN_T], PICK_RETURN_T]]]:
+        KEYS_ENTER = (curses.KEY_ENTER, ord("\n"), ord("\r"))
+        KEYS_UP = (curses.KEY_UP, ord("k"))
+        KEYS_DOWN = (curses.KEY_DOWN, ord("j"))
+        KEYS_SELECT = [ord(str(x)) for x in self.groups]
+        KEYS_ESC = (curses.KEY_BACKSPACE,curses.KEY_LEFT)
+
         while True:
             self.draw(screen)
             c = screen.getch()
@@ -144,14 +158,18 @@ class Picker(Generic[OPTION_T]):
             elif c in KEYS_DOWN:
                 self.move_down()
             elif c in KEYS_ENTER:
+                total_selected = functools.reduce(lambda total,k: total + len(self.selected_indexes[k]), self.selected_indexes, 0)
+                
                 if (
-                    self.multiselect
-                    and len(self.selected_indexes) < self.min_selection_count
+                    self.handle_all
+                    and total_selected < len(self.options)
                 ):
                     continue
                 return self.get_selected()
-            elif c in KEYS_SELECT and self.multiselect:
-                self.mark_index()
+            elif c in KEYS_SELECT:
+                self.mark_index(c)
+            elif c in KEYS_ESC:
+                return None
 
     def config_curses(self) -> None:
         try:
@@ -171,20 +189,20 @@ class Picker(Generic[OPTION_T]):
         return curses.wrapper(self._start)
 
 
-def pick(
+def multipick(
     options: Sequence[OPTION_T],
-    title: Optional[str] = None,
+    groups: Set[int|str],
+    instructions: Optional[str] = None,
     indicator: str = "*",
     default_index: int = 0,
-    multiselect: bool = False,
-    min_selection_count: int = 0,
+    handle_all: bool = False,
 ):
     picker: Picker = Picker(
         options,
-        title,
+        groups,
+        instructions,
         indicator,
         default_index,
-        multiselect,
-        min_selection_count,
+        handle_all,
     )
     return picker.start()

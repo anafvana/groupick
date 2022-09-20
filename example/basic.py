@@ -1,6 +1,7 @@
-from pick import pick
+from multipick import multipick
 
-title = "Please choose your favorite programming language: "
+title = "Assign languages to groups 'a', 'b' or '1'."
 options = ["Java", "JavaScript", "Python", "PHP", "C++", "Erlang", "Haskell"]
-option, index = pick(options, title, indicator="=>", default_index=2)
-print(f"You choosed {option} at index {index}")
+groups:set = {"a", "b", 1}
+selected = multipick(options, groups, title, indicator="=>", default_index=2)
+print(f"Here is your assignment: {selected}")
