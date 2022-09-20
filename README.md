@@ -4,7 +4,7 @@
 [![PyPI](https://img.shields.io/pypi/v/multipick.svg)](https://pypi.org/project/multipick/)
 [![PyPI](https://img.shields.io/pypi/dm/multipick)](https://pypi.org/project/multipick/)
 
-**multipick** is a small python library based on [wong2's pick](https://github.com/wong2/pick) which allows you to create a curses-based interactive selection in the terminal. With **multipick** you can asign options to groups.
+**multipick** is a small python library based on [wong2's pick](https://github.com/wong2/pick) which allows you to create a curses-based interactive selection in the terminal. With **multipick** you can assign options to groups.
 
 ![](example/basic.gif)
 
