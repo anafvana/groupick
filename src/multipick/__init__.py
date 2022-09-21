@@ -2,7 +2,7 @@ import curses
 import functools
 from dataclasses import dataclass, field
 from typing import (Any, Dict, Generic, List, Optional, Sequence, Set, Tuple,
-                    TypeVar, Union)
+                    TypeVar)
 
 __all__ = ["Picker", "multipick", "Option"]
 
@@ -72,19 +72,19 @@ class Picker(Generic[OPTION_T]):
                         pass
                 grp.append(self.index)
 
-    def get_selected(self) -> Dict[str, Union[List[PICK_RETURN_T], PICK_RETURN_T]]:
+    def get_selected(self) -> Dict[str, List[PICK_RETURN_T]]:
         """return the current selected option as a tuple: (option, index)
         or as a list of tuples (in case multiselect==True)
         """
 
-        return_tuples:dict = {}
+        return_groups:dict = {}
         for k in self.selected_indexes.keys():
-            return_tuples[k] = []
+            return_groups[k] = []
             grp = self.selected_indexes.get(k)
             if grp is not None:
                 for selected in grp:
-                    return_tuples[k].append((self.options[selected], selected))
-        return return_tuples
+                    return_groups[k].append((self.options[selected], selected))
+        return return_groups
 
     def get_title_lines(self) -> List[str]:
         if self.instructions:
@@ -143,7 +143,7 @@ class Picker(Generic[OPTION_T]):
 
         screen.refresh()
 
-    def run_loop(self, screen) -> Optional[Dict[str, Union[List[PICK_RETURN_T], PICK_RETURN_T]]]:
+    def run_loop(self, screen) -> Optional[Dict[str, List[PICK_RETURN_T]]]:
         KEYS_ENTER = (curses.KEY_ENTER, ord("\n"), ord("\r"))
         KEYS_UP = (curses.KEY_UP, ord("k"))
         KEYS_DOWN = (curses.KEY_DOWN, ord("j"))
