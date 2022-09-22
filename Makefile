@@ -10,4 +10,4 @@ test:
 
 .PHONY=clean
 clean:
-	rm -fr build dist multipick.egg-info
+	rm -fr build dist groupick.egg-info

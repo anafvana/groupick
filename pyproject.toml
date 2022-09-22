@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "multipick"
+name = "groupick"
 version = "1.0.0"
 description = "Assign options to groups in the terminal with a simple GUI. Based on wong2's pick"
 authors = ["Ana <anafvana@gmail.com>", "wong2 <wonderfuly@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/anafvana/multipick/"
-homepage = "https://github.com/anafvana/multipick/"
+repository = "https://github.com/anafvana/groupick/"
+homepage = "https://github.com/anafvana/groupick/"
 keywords = ["terminal", "gui","pick", "group", "assign"]
 
 [tool.poetry.dependencies]

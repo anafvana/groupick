@@ -1,4 +1,4 @@
-name: Multipick Tests
+name: groupick Tests
 on: [push, pull_request]
 jobs:
   ci:

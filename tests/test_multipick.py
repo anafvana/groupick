@@ -1,4 +1,4 @@
-from multipick import Picker
+from groupick import Picker
 
 options = ["Java", "JavaScript", "Python", "PHP", "C++", "Erlang", "Haskell"]
 groups:set = {"a", "b", 1}

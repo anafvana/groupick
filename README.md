@@ -1,27 +1,27 @@
-# multipick
+# groupick
 
-[![image](https://github.com/anafvana/multipick/actions/workflows/ci.yml/badge.svg)](https://github.com/anafvana/multipick/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/multipick.svg)](https://pypi.org/project/multipick/)
-[![PyPI](https://img.shields.io/pypi/dm/multipick)](https://pypi.org/project/multipick/)
+[![image](https://github.com/anafvana/groupick/actions/workflows/ci.yml/badge.svg)](https://github.com/anafvana/groupick/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/groupick.svg)](https://pypi.org/project/groupick/)
+[![PyPI](https://img.shields.io/pypi/dm/groupick)](https://pypi.org/project/groupick/)
 
-**multipick** is a small python library based on [wong2's pick](https://github.com/wong2/pick) which allows you to create a curses-based interactive selection in the terminal. With **multipick** you can assign options to groups.
+**groupick** is a small python library based on [wong2's pick](https://github.com/wong2/pick) which allows you to create a curses-based interactive selection in the terminal. With **groupick** you can assign options to groups.
 
 ![](example/basic.gif)
 
 ## Installation
 
-    $ pip install multipick
+    $ pip install groupick
 
 ## Usage
 
-**multipick** comes with a simple api:
+**groupick** comes with a simple api:
 
-    >>> from multipick import multipick
+    >>> from groupick import groupick
 
     >>> instructions = "Assign languages to groups 'a', 'b' or '1'."
     >>> options = ["Java", "JavaScript", "Python", "PHP", "C++", "Erlang", "Haskell"]
     >>> groups:set = {"a", "b", 1}
-    >>> selected = multipick(options, groups, instructions, indicator="=>", default_index=2)
+    >>> selected = groupick(options, groups, instructions, indicator="=>", default_index=2)
     >>> print(f"Here is your assignment: {selected}")
 
 **output**:
@@ -41,4 +41,4 @@
 
 [wong2's pick](https://github.com/wong2/pick): Original pick project, for selecting one or more options (no grouping)
 
-[pickpack](https://github.com/anafvana/pickpack): A fork of `multipick` to select tree data.
+[pickpack](https://github.com/anafvana/pickpack): A fork of `groupick` to select tree data.

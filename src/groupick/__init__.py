@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import (Any, Dict, Generic, List, Optional, Sequence, Set, Tuple,
                     TypeVar)
 
-__all__ = ["Picker", "multipick", "Option"]
+__all__ = ["Picker", "groupick", "Option"]
 
 
 @dataclass
@@ -189,7 +189,7 @@ class Picker(Generic[OPTION_T]):
         return curses.wrapper(self._start)
 
 
-def multipick(
+def groupick(
     options: Sequence[OPTION_T],
     groups: Set[int|str],
     instructions: Optional[str] = None,
