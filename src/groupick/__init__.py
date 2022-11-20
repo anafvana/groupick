@@ -29,6 +29,7 @@ class Picker(Generic[OPTION_T]):
     handle_all: bool = False
     selected_indexes: Dict[str,List[int]] = field(init=False, default_factory=dict)
     index: int = field(init=False, default=0)
+    screen: Optional["curses._CursesWindow"] = None
 
     def __post_init__(self) -> None:
         if len(self.options) == 0:
@@ -118,7 +119,7 @@ class Picker(Generic[OPTION_T]):
         current_line = self.index + len(title_lines) + 1
         return lines, current_line
 
-    def draw(self, screen) -> None:
+    def draw(self, screen: "curses._CursesWindow") -> None:
         """draw the curses ui on the screen, handle scroll if needed"""
         screen.clear()
 
@@ -141,7 +142,7 @@ class Picker(Generic[OPTION_T]):
 
         screen.refresh()
 
-    def run_loop(self, screen) -> Optional[Dict[str, List[PICK_RETURN_T]]]:
+    def run_loop(self, screen: "curses._CursesWindow") -> Optional[Dict[str, List[PICK_RETURN_T]]]:
         KEYS_ENTER = (curses.KEY_ENTER, ord("\n"), ord("\r"))
         KEYS_UP = (curses.KEY_UP, ord("k"))
         KEYS_DOWN = (curses.KEY_DOWN, ord("j"))
@@ -179,11 +180,19 @@ class Picker(Generic[OPTION_T]):
             # Curses failed to initialize color support, eg. when TERM=vt100
             curses.initscr()
 
-    def _start(self, screen):
+    def _start(self, screen: "curses._CursesWindow"):
         self.config_curses()
         return self.run_loop(screen)
 
     def start(self):
+        if self.screen:
+            # Given an existing screen
+            # don't make any lasting changes
+            last_cur = curses.curs_set(0)
+            ret = self.run_loop(self.screen)
+            if last_cur:
+                curses.curs_set(last_cur)
+            return ret
         return curses.wrapper(self._start)
 
 
@@ -194,6 +203,7 @@ def groupick(
     indicator: str = "*",
     default_index: int = 0,
     handle_all: bool = False,
+    screen: Optional["curses._CursesWindow"] = None,
 ):
     picker: Picker = Picker(
         options,
@@ -202,5 +212,6 @@ def groupick(
         indicator,
         default_index,
         handle_all,
+        screen,
     )
     return picker.start()

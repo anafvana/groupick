@@ -36,6 +36,7 @@
 - `indicator`: (optional) custom the selection indicator, defaults to `*`
 - `default_index`: (optional) index of item where cursor starts at by default
 - `handle_all`: (optional) define whether it is mandatory to assign all options to groups, defaults to `False`
+- `screen`: (optional), if you are using `pick` within an existing curses application set this to your existing `screen` object. It is assumed this has initialised in the standard way (e.g. via `curses.wrapper()`, or `curses.noecho(); curses.cbreak(); screen.kepad(True)`)
 
 ## Community Projects
 
