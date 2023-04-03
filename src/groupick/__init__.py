@@ -30,6 +30,7 @@ class Picker(Generic[OPTION_T]):
     selected_indexes: Dict[str,List[int]] = field(init=False, default_factory=dict)
     index: int = field(init=False, default=0)
     screen: Optional["curses._CursesWindow"] = None
+    map_keys: bool = True
 
     def __post_init__(self) -> None:
         if len(self.options) == 0:
@@ -147,7 +148,7 @@ class Picker(Generic[OPTION_T]):
         KEYS_UP = (curses.KEY_UP, ord("k"))
         KEYS_DOWN = (curses.KEY_DOWN, ord("j"))
         KEYS_SELECT = [ord(str(x)) for x in self.groups]
-        KEYS_ESC = (curses.KEY_BACKSPACE,curses.KEY_LEFT)
+        KEYS_ESC = (curses.KEY_BACKSPACE, ord("\b"), curses.KEY_LEFT)
 
         while True:
             self.draw(screen)
